@@ -1,0 +1,34 @@
+要在基于 Itanium 的计算机上禁用 Device Guard 或 Credential Guard，请执行以下操作：
+
+禁用用于启用 Credential Guard 的组策略设置。
+
+在主机操作系统上，单击启动>运行，键入gpedit.msc,，然后单击确定。将打开本地组策略编辑器。
+转到本地计算机策略>计算机配置>管理模板 > 系统>Device Guard>打开基于虚拟化的安全。
+选择禁用。
+
+转到控制面板>卸载程序>打开或关闭 Windows 功能以关闭 Hyper-V。
+选择不重新启动。
+通过使用管理员帐户在主机上启动命令提示符来删除相关的 EFI 变量并运行以下命令：
+
+mountvol X: /s
+copy %WINDIR%\System32\SecConfig.efi X:\EFI\Microsoft\Boot\SecConfig.efi /Y
+bcdedit /create {0cb3b571-2f2e-4343-a879-d86a476d7215} /d "DebugTool" /application osloader
+bcdedit /set {0cb3b571-2f2e-4343-a879-d86a476d7215} path "\EFI\Microsoft\Boot\SecConfig.efi"
+bcdedit /set {bootmgr} bootsequence {0cb3b571-2f2e-4343-a879-d86a476d7215}
+bcdedit /set {0cb3b571-2f2e-4343-a879-d86a476d7215} loadoptions DISABLE-LSA-ISO,DISABLE-VBS
+bcdedit /set {0cb3b571-2f2e-4343-a879-d86a476d7215} device partition=X:
+mountvol X: /d
+
+注意：确保X为未使用的驱动器，否则更改为其他驱动器。
+
+重新启动主机。
+接受引导屏幕上的提示，禁用 Device Guard 或 Credential Guard。
+
+如果您的主机使用传统 BIOS 引导，请执行以下操作：
+以管理员身份在主机上打开命令提示符。
+运行以下命令：
+
+bcdedit /set hypervisorlaunchtypeoff
+
+重新引导主机。
+注意：在“运行”选项卡中查找 EFI 或 BIOS 类型msinfo32.exe。

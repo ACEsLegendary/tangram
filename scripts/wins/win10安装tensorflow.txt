@@ -1,0 +1,74 @@
+#1,安装anaconda
+去清华镜像下载：  https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/
+安装好即可。方便起见，还是将anaconda添加到PATH，虽然安装提示说不推荐这么做。
+
+#2,检查python和pip
+命令行下分别执行: python -V 和pip -V检查二者是否安装正确。
+
+#3,anaconda源切换到清华镜像
+执行下面指令：
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+conda config --set show_channel_urls yes
+
+然后去检查当前用户路径下的.condarc文件是否变成了
+channels:
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+  - defaults
+ssl_verify: true
+show_channel_urls: true
+
+#4,pip源切换到清华镜像
+修改 ~/.config/pip/pip.conf (Linux), %APPDATA%\pip\pip.ini (Windows 10) 或 $HOME/Library/Application Support/pip/pip.conf (macOS) (没有就创建一个)， 修改 index-url至tuna，例如
+
+[global]
+index-url = https://pypi.tuna.tsinghua.edu.cn/simple
+
+#5,使用pip从清华镜像安装tensorflow（1.4）
+pip install --upgrade tensorflow-gpu
+
+#6,安装完成后，在python解释器中执行import tensorflow会报错，提示没有安装CUDA（8.0）和cuDNN（v6)
+故分别安装。cuDNN下载下来是一个压缩包，直接解压到C盘(cuda文件夹)，然后向PATH环境变量中添加C:\cuda\bin环境变量。
+这里注意版本一定要对上号，不然会有问题。
+
+#7,验证tensorflow.写一个简单的程序跑一下。
+import tensorflow as tf
+
+a = tf.random_normal((1000, 10000))
+b = tf.random_normal((10000, 5000))
+c = tf.matmul(a, b)
+sess = tf.InteractiveSession()
+x = sess.run(c)
+print(x)
+sess.close()
+
+#8,vscode安装插件 python
+vscode命令面板使用ext install python。或者在插件面板搜索python，安装好python插件。
+安装之后，会有语法检查。
+
+#9，安装yapf
+这是一个python代码格式化工具，可以用来快速解决python的可视化问题（比如逗号后面的空格啊，操作符周围的空格等等)
+pip install yapf
+如果安装失败，报错TypeError: parse() got an unexpected keyword argument 'transport_encoding' 
+这是因为win10的命令行的编码引起的问题，则需要检查anaconda的html5lib是否是最新版(1.0.1以上)
+使用conda upgrade html5lib
+如果使用清华的镜像，要注意两个镜像的版本不同。可以使用anacode navigator来升级html5lib到1.0.1以上。
+
+然后去vs code的设置面板配置参数(ctrl+,)
+"python.formatting.provider": "yapf"
+
+打开命令vscode命令面板(ctrl+shift+p),查找relaod window命令，执行重新加载窗口
+这时候可以选中代码块，然后执行ctrl+K,ctrl+F可以快速格式化代码。
+
+#10，为了解决windows下写出来的python代码可以直接在linux中使用。
+可以在vscode中配置
+"files.eol": "\n",
+"files.insertFinalNewline": true,
+或者在项目根目录下使用.editorconfig配置文件：
+root = true
+[*]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+

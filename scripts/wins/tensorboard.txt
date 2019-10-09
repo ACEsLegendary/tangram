@@ -1,0 +1,2 @@
+#win10下tensorboard使用
+tensorboard.exe --logdir="H://logs"
